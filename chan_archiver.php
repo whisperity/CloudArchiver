@@ -16,16 +16,20 @@ class chan_archiver
     
     public function doUpdate()
     {
-        $size = filesize( "version.txt" );
-        $handle = fopen( "version.txt", "r+" );
+        $size = 0;
+        $handle = 0;
+        if( file_exists( "version.txt" ) )
+        {
+            $size = filesize( "version.txt" );
+            $handle = fopen( "version.txt", "r+" );
+        }
         if( !$handle || $size <= 0)
         {
-            fclose($handle);
             $this->currentVersion = $this->getCurrentLatest();
             $this->saveCurrentVersion();
         }
         else
-        {        
+        {
             $this->currentVersion = fread( $handle, $size );
             fclose( $handle );
         }
