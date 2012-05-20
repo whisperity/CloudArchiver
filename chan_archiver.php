@@ -143,9 +143,9 @@ class chan_archiver
             return;
         }
         $fixeddata = str_replace( "=\"//", "=\"http://", $data );
-        $fixeddata = str_replace( "\"" . $threadid . "#", "\"" . $threadid . ".html#", $data );
-        $fixeddata = str_replace( "text/rocketscript", "text/javascript", $data );
-        $fixeddata = str_replace( "data-rocketsrc", "src", $data );
+        $fixeddata = str_replace( "\"" . $threadid . "#", "\"" . $threadid . ".html#", $fixeddata );
+        $fixeddata = str_replace( "text/rocketscript", "text/javascript", $fixeddata );
+        $fixeddata = str_replace( "data-rocketsrc", "src", $fixeddata );
         if ( is_dir( $archiver_config[ 'storage' ] . $board . "/" ) === FALSE )
             mkdir( $archiver_config[ 'storage' ] . $board . "/" );
         if ( is_dir( $archiver_config[ 'storage' ] . $board . "/" . $threadid . "/" ) === FALSE )
