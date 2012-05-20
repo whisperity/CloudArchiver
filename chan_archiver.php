@@ -106,6 +106,18 @@ class chan_archiver
         return false;
     }
     
+    protected function rrmdir($dir)
+    {
+        foreach(glob($dir . '/*') as $file)
+        {
+            if(is_dir($file))
+                $this->rrmdir($file);
+            else
+                unlink($file);
+        }
+        rmdir($dir);
+    }
+    
     public function checkThreads($checktime)
     {
         $this->connectDB();
@@ -225,8 +237,9 @@ class chan_archiver
         return sprintf( "Added thread %s (/%s/)<br />\r\n", $threadid, $board );
     }
     
-    public function removeThread( $threadid, $board )
+    public function removeThread( $threadid, $board, $deletefiles = 0 )
     {
+        global $archiver_config;
         $this->connectDB();
         // check if we already have it
         $query = mysql_query( sprintf( "SELECT * FROM `Threads` WHERE `ID` = '%s' AND Board = '%s'", $threadid, $board ) );
@@ -235,6 +248,11 @@ class chan_archiver
         $num = mysql_num_rows( $query );
         if ( $num <= 0 )
             return false;
+        if($deletefiles)
+        {
+            $this->rrmdir($archiver_config[ 'storage' ] . $board . "/" . $threadid . "/");
+            unlink($archiver_config[ 'storage' ] . $board . "/" . $threadid . ".html");
+        }
         mysql_query( sprintf( "DELETE FROM `Threads` WHERE `ID` = '%s' AND Board = '%s'", $threadid, $board ) );
         mysql_query( sprintf( "DELETE FROM `Posts` WHERE `ThreadID` = '%s' AND Board = '%s'", $threadid, $board ) );
         $this->closeDB();
