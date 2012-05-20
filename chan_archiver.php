@@ -93,7 +93,7 @@ class chan_archiver
         if ( !$data ) // must have 404'd
         {
             mysql_query( sprintf( "UPDATE `Threads` SET `Status` = '0' WHERE `Board` = '%s' AND `ID` = '%s'", $board, $threadid ) );
-            mysql_query( sprintf( "DELETE FROM `Posts` WHERE `Board` = '%s' AND `ID` = '%s'", $board, $threadid ) );
+            mysql_query( sprintf( "DELETE FROM `Posts` WHERE `Board` = '%s' AND `ThreadID` = '%s'", $board, $threadid ) );
             return;
         }
         $fixeddata = str_replace( "=\"//", "=\"http://", $data );
