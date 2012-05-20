@@ -30,7 +30,7 @@ if ( $delenabled && isset( $_REQUEST[ 'upd' ] ) && isset( $_REQUEST[ 'id' ] ) &&
 
 if ( $addenabled && isset( $_REQUEST[ 'add' ] ) && isset( $_REQUEST[ 'url' ] ) )
 {
-    if(!substr($_REQUEST[ 'url' ],0,7) != "http://")
+    if(substr($_REQUEST[ 'url' ],0,7) != "http://")
         $_REQUEST[ 'url' ] = "http://" . $_REQUEST[ 'url' ];
     if(!isset($_REQUEST[ 'desc' ]))
         $_REQUEST[ 'desc' ] = "";
