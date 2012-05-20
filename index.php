@@ -7,6 +7,7 @@ echo <<<ENDHTML
 <html>
 <head>
 <title>4chan archiver - by anon e moose</title>
+<link rel="icon" type="image/vnd.microsoft.icon" href="favicon.ico">
 </head>
 <body>
 <a href="http://github.com/emoose/4chan-archiver/"><h2>4chan archiver - by anon e moose</h2></a>
