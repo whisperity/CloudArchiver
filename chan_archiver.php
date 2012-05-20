@@ -13,12 +13,8 @@ class chan_archiver
     public $currentVersion;
     public $latestVersion;
     public $updateAvailable;
-    function chan_archiver()
-    {
-        $this->doUpdate();
-    }
     
-    protected function doUpdate()
+    public function doUpdate()
     {
         $size = filesize( "version.txt" );
         $handle = fopen( "version.txt", "r+" );
