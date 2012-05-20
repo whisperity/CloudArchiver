@@ -8,6 +8,51 @@ class chan_archiver
 {
     public $mysql;
     public $threadurl = "http://boards.4chan.org/%s/res/%s"; // board, ID
+    public $updaterurl = "https://github.com/emoose/4chan-archiver/tarball/master";
+    public $compareurl = "https://github.com/emoose/4chan-archiver/compare/";
+    public $currentVersion;
+    public $latestVersion;
+    public $updateAvailable;
+    function chan_archiver()
+    {
+        $this->doUpdate();
+    }
+    
+    protected function doUpdate()
+    {
+        $size = filesize( "version.txt" );
+        $handle = fopen( "version.txt", "r+" );
+        if( !$handle || $size <= 0)
+        {
+            fclose($handle);
+            $this->currentVersion = $this->getCurrentLatest();
+            $this->saveCurrentVersion();
+        }
+        else
+        {        
+            $this->currentVersion = fread( $handle, $size );
+            fclose( $handle );
+        }
+        $this->latestVersion = $this->getCurrentLatest();
+        $this->updateAvailable = $this->latestVersion != $this->currentVersion;
+    }
+    
+    protected function saveCurrentVersion()
+    {
+        $handle = fopen( "version.txt", "w+" );
+        if(!$handle)
+            die( 'Unable to open version.txt' );
+        fwrite( $handle, $this->currentVersion );
+        fclose( $handle );   
+    }
+    
+    protected function getCurrentLatest()
+    {
+        $headers = get_headers( $this->updaterurl, 1 );
+        $latest = explode( "filename=", $headers['Content-Disposition'] );
+        $latest = str_replace( ".tar.gz", "", str_replace( "emoose-4chan-archiver-", "", $latest[1] ) );
+        return $latest;
+    }
     
     protected function connectDB()
     {
@@ -18,9 +63,10 @@ class chan_archiver
             if ( !$this->mysql )
                 die( 'Could not connect: ' . mysql_error() );
             mysql_select_db( $archiver_config[ 'mysql_db' ], $this->mysql );
+            
         }
     }
-    
+
     protected function closeDB()
     {
         if ( $this->mysql )
@@ -29,14 +75,14 @@ class chan_archiver
             $this->mysql = null;
         }
     }
-    
+
     protected function getSource( $url )
     {
         if ( ( $source = @file_get_contents( $url ) ) == false )
             return false;
         return $source;
     }
-    
+
     protected function downloadFile( $url, $location )
     {
         $file = "";
@@ -48,7 +94,7 @@ class chan_archiver
             $this->writeFile( $file, $location );
         }
     }
-    
+
     protected function writeFile( $data, $location )
     {
         if ( ( $handle = fopen( $location, "w+" ) ) )
@@ -78,7 +124,7 @@ class chan_archiver
         }
         $this->closeDB();
     }
-    
+
     public function updateThread( $threadid, $board )
     {
         global $archiver_config;
@@ -116,7 +162,7 @@ class chan_archiver
             $id   = $id[ 0 ];
             if ( in_array( $id, $postarr ) )
                 continue;
-            
+
             $posttime = explode( "data-utc=\"", $post[ 0 ] );
             $posttime = explode( "\"", $posttime[ 1 ] );
             $posttime = $posttime[ 0 ];
@@ -153,7 +199,7 @@ class chan_archiver
         mysql_query( sprintf( "UPDATE `Threads` SET `LastChecked` = '%s' WHERE `Board` = '%s' AND `ID` = '%s'", time(), $board, $threadid ) );
         $this->writeFile( $fixeddata, $archiver_config[ 'storage' ] . $board . "/" . $threadid . ".html" );
     }
-    
+
     public function addThread( $threadid, $board, $description )
     {
         $this->connectDB();
@@ -214,7 +260,7 @@ class chan_archiver
         $thrarray = array();
         while ( $thr = mysql_fetch_object( $query ) )
         {
-            $q2       = mysql_query( sprintf( "SELECT * FROM `Posts` WHERE `ThreadID` = '%s' AND `Board` = '%s' ORDER BY `PostTime` DESC", $thr->ID, $thr->Board ) );
+            $q2 = mysql_query( sprintf("SELECT * FROM `Posts` WHERE `ThreadID` = '%s' AND `Board` = '%s' ORDER BY `PostTime` DESC", $thr->ID, $thr->Board));
             $lasttime = 0;
             if ( !$q2 )
                 die( 'Could not query database: ' . mysql_error() );
@@ -226,7 +272,7 @@ class chan_archiver
                 $thr->Status,
                 $thr->LastChecked,
                 $thr->Description,
-                $lasttime 
+                $lasttime
             ) );
         }
         $this->closeDB();

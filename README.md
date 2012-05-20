@@ -20,6 +20,7 @@ Import chanarchive.sql into some database
 Setup config.php with your paths and mysql info
 Add a cronjob to /usr/bin/php -f /path/to/cron.php (might not be /usr/bin/php, check with your server admin)
 Have fun!
+IF YOU ARE UPDATING, MAKE SURE YOU DELETE VERSION.TXT!
 
 Todo:
 AJAX everything up

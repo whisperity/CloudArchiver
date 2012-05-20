@@ -11,7 +11,12 @@ echo <<<ENDHTML
 <a href="http://github.com/emoose/4chan-archiver/"><h2>4chan archiver - by anon e moose</h2></a>
 <p>
 ENDHTML;
-
+if ( $t->updateAvailable )
+{
+    echo <<<ENDHTML
+<h1>There is an <a href="{$t->updaterurl}" onclick="alert('make sure you delete version.txt after updating!');">update</a> available! <a href="{$t->compareurl}{$t->currentVersion}...{$t->latestVersion}">(diff)</a></h1>
+ENDHTML;
+}
 // login stuff
 if ( isset( $_REQUEST[ 'login' ] ) && isset( $_REQUEST[ 'user' ] ) && isset( $_REQUEST[ 'pass' ] ) )
 {
