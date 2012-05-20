@@ -16,14 +16,14 @@ class chan_archiver
     
     public function doUpdate()
     {
-        $size = 0;
+        $size   = 0;
         $handle = 0;
-        if( file_exists( "version.txt" ) )
+        if ( file_exists( "version.txt" ) )
         {
-            $size = filesize( "version.txt" );
+            $size   = filesize( "version.txt" );
             $handle = fopen( "version.txt", "r+" );
         }
-        if( !$handle || $size <= 0)
+        if ( !$handle || $size <= 0 )
         {
             $this->currentVersion = $this->getCurrentLatest();
             $this->saveCurrentVersion();
@@ -33,24 +33,24 @@ class chan_archiver
             $this->currentVersion = fread( $handle, $size );
             fclose( $handle );
         }
-        $this->latestVersion = $this->getCurrentLatest();
+        $this->latestVersion   = $this->getCurrentLatest();
         $this->updateAvailable = $this->latestVersion != $this->currentVersion;
     }
     
     protected function saveCurrentVersion()
     {
         $handle = fopen( "version.txt", "w+" );
-        if(!$handle)
+        if ( !$handle )
             die( 'Unable to open version.txt' );
         fwrite( $handle, $this->currentVersion );
-        fclose( $handle );   
+        fclose( $handle );
     }
     
     protected function getCurrentLatest()
     {
         $headers = get_headers( $this->updaterurl, 1 );
-        $latest = explode( "filename=", $headers['Content-Disposition'] );
-        $latest = str_replace( ".tar.gz", "", str_replace( "emoose-4chan-archiver-", "", $latest[1] ) );
+        $latest  = explode( "filename=", $headers[ 'Content-Disposition' ] );
+        $latest  = str_replace( ".tar.gz", "", str_replace( "emoose-4chan-archiver-", "", $latest[ 1 ] ) );
         return $latest;
     }
     
@@ -66,7 +66,7 @@ class chan_archiver
             
         }
     }
-
+    
     protected function closeDB()
     {
         if ( $this->mysql )
@@ -75,14 +75,14 @@ class chan_archiver
             $this->mysql = null;
         }
     }
-
+    
     protected function getSource( $url )
     {
         if ( ( $source = @file_get_contents( $url ) ) == false )
             return false;
         return $source;
     }
-
+    
     protected function downloadFile( $url, $location )
     {
         $file = "";
@@ -94,7 +94,7 @@ class chan_archiver
             $this->writeFile( $file, $location );
         }
     }
-
+    
     protected function writeFile( $data, $location )
     {
         if ( ( $handle = fopen( $location, "w+" ) ) )
@@ -106,19 +106,19 @@ class chan_archiver
         return false;
     }
     
-    protected function rrmdir($dir)
+    protected function rrmdir( $dir )
     {
-        foreach(glob($dir . '/*') as $file)
+        foreach ( glob( $dir . '/*' ) as $file )
         {
-            if(is_dir($file))
-                $this->rrmdir($file);
+            if ( is_dir( $file ) )
+                $this->rrmdir( $file );
             else
-                unlink($file);
+                unlink( $file );
         }
-        rmdir($dir);
+        rmdir( $dir );
     }
     
-    public function checkThreads($checktime)
+    public function checkThreads( $checktime )
     {
         $this->connectDB();
         $query = mysql_query( "SELECT * FROM `Threads` WHERE `Status` = '1'" );
@@ -138,7 +138,7 @@ class chan_archiver
         $this->closeDB();
         return $return;
     }
-
+    
     public function updateThread( $threadid, $board )
     {
         global $archiver_config;
@@ -176,7 +176,7 @@ class chan_archiver
             $id   = $id[ 0 ];
             if ( in_array( $id, $postarr ) )
                 continue;
-
+            
             $posttime = explode( "data-utc=\"", $post[ 0 ] );
             $posttime = explode( "\"", $posttime[ 1 ] );
             $posttime = $posttime[ 0 ];
@@ -218,7 +218,7 @@ class chan_archiver
         $this->closeDB();
         return sprintf( "Checked %s (/%s/) at %s<br />\r\n", $threadid, $board, time() );
     }
-
+    
     public function addThread( $threadid, $board, $description )
     {
         $this->connectDB();
@@ -248,10 +248,10 @@ class chan_archiver
         $num = mysql_num_rows( $query );
         if ( $num <= 0 )
             return false;
-        if($deletefiles)
+        if ( $deletefiles )
         {
-            $this->rrmdir($archiver_config[ 'storage' ] . $board . "/" . $threadid . "/");
-            unlink($archiver_config[ 'storage' ] . $board . "/" . $threadid . ".html");
+            $this->rrmdir( $archiver_config[ 'storage' ] . $board . "/" . $threadid . "/" );
+            unlink( $archiver_config[ 'storage' ] . $board . "/" . $threadid . ".html" );
         }
         mysql_query( sprintf( "DELETE FROM `Threads` WHERE `ID` = '%s' AND Board = '%s'", $threadid, $board ) );
         mysql_query( sprintf( "DELETE FROM `Posts` WHERE `ThreadID` = '%s' AND Board = '%s'", $threadid, $board ) );
@@ -280,8 +280,8 @@ class chan_archiver
         $query = mysql_query( "SELECT * FROM `Threads` WHERE `Status` = '1'" );
         if ( !$query )
             die( 'Could not query database: ' . mysql_error() );
-            
-        $num = mysql_num_rows($query);
+        
+        $num = mysql_num_rows( $query );
         $this->closeDB();
         return $num;
     }
@@ -295,7 +295,7 @@ class chan_archiver
         $thrarray = array();
         while ( $thr = mysql_fetch_object( $query ) )
         {
-            $q2 = mysql_query( sprintf("SELECT * FROM `Posts` WHERE `ThreadID` = '%s' AND `Board` = '%s' ORDER BY `PostTime` DESC", $thr->ID, $thr->Board));
+            $q2       = mysql_query( sprintf( "SELECT * FROM `Posts` WHERE `ThreadID` = '%s' AND `Board` = '%s' ORDER BY `PostTime` DESC", $thr->ID, $thr->Board ) );
             $lasttime = 0;
             if ( !$q2 )
                 die( 'Could not query database: ' . mysql_error() );
@@ -307,7 +307,7 @@ class chan_archiver
                 $thr->Status,
                 $thr->LastChecked,
                 $thr->Description,
-                $lasttime
+                $lasttime 
             ) );
         }
         $this->closeDB();

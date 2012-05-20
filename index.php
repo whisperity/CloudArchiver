@@ -2,7 +2,8 @@
 session_start();
 include "chan_archiver.php";
 $t = new chan_archiver();
-$t->doUpdate();
+if ( !isset($archiver_config[ 'updater_enabled' ]) || $archiver_config[ 'updater_enabled' ] )
+    $t->doUpdate();
 
 // login stuff
 if ( isset( $_REQUEST[ 'login' ] ) && isset( $_REQUEST[ 'user' ] ) && isset( $_REQUEST[ 'pass' ] ) )
@@ -18,31 +19,31 @@ $addenabled = ( !$archiver_config[ 'login_add' ] || $isloggedin );
 
 $return = "";
 if ( $delenabled && isset( $_REQUEST[ 'del' ] ) && isset( $_REQUEST[ 'id' ] ) && isset( $_REQUEST[ 'brd' ] ) )
-    $return .= $t->removeThread( $_REQUEST[ 'id' ], $_REQUEST[ 'brd' ], $_REQUEST[ 'files' ]);
+    $return .= $t->removeThread( $_REQUEST[ 'id' ], $_REQUEST[ 'brd' ], $_REQUEST[ 'files' ] );
 
 if ( $chkenabled && isset( $_REQUEST[ 'chk' ] ) && isset( $_REQUEST[ 'id' ] ) && isset( $_REQUEST[ 'brd' ] ) )
     $return .= $t->updateThread( $_REQUEST[ 'id' ], $_REQUEST[ 'brd' ] );
 
 if ( $chkenabled && isset( $_REQUEST[ 'chka' ] ) )
-    $return .= $t->checkThreads(false);
+    $return .= $t->checkThreads( false );
 
 if ( $delenabled && isset( $_REQUEST[ 'upd' ] ) && isset( $_REQUEST[ 'id' ] ) && isset( $_REQUEST[ 'brd' ] ) )
     $return .= $t->setThreadDescription( $_REQUEST[ 'id' ], $_REQUEST[ 'brd' ], $_REQUEST[ 'desc' ] );
 
 if ( $addenabled && isset( $_REQUEST[ 'add' ] ) && isset( $_REQUEST[ 'url' ] ) )
 {
-    if(substr($_REQUEST[ 'url' ],0,7) != "http://")
+    if ( substr( $_REQUEST[ 'url' ], 0, 7 ) != "http://" )
         $_REQUEST[ 'url' ] = "http://" . $_REQUEST[ 'url' ];
-    if(!isset($_REQUEST[ 'desc' ]))
+    if ( !isset( $_REQUEST[ 'desc' ] ) )
         $_REQUEST[ 'desc' ] = "";
-    if( $c = preg_match_all( "/.*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?((?:[a-z][a-z0-9_]*)).*?(\d+)/is", $_REQUEST[ 'url' ], $matches ) )
+    if ( $c = preg_match_all( "/.*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?((?:[a-z][a-z0-9_]*)).*?(\d+)/is", $_REQUEST[ 'url' ], $matches ) )
         $return .= $t->addThread( $matches[ 2 ][ 0 ], $matches[ 1 ][ 0 ], $_REQUEST[ 'desc' ] );
 }
 
-if($return != "")
+if ( $return != "" )
 {
     $_SESSION[ 'returnvar' ] = $return;
-    header('Location: index.php');
+    header( 'Location: index.php' );
     exit;
 }
 echo <<<ENDHTML
@@ -78,18 +79,19 @@ if ( $t->updateAvailable )
     <div class="alertbox">There is an <a href="{$t->updaterurl}" onclick="alert('make sure you delete version.txt after updating!');">update</a> available! <a href="{$t->compareurl}{$t->currentVersion}...{$t->latestVersion}">(diff)</a></div><br />
 ENDHTML;
 }
-if(isset($_SESSION['returnvar']) && $_SESSION['returnvar'] != "")
+if ( isset( $_SESSION[ 'returnvar' ] ) && $_SESSION[ 'returnvar' ] != "" )
 {
-    $arr = explode('<br />', $_SESSION['returnvar']);
-    foreach($arr as $str)
+    $arr = explode( '<br />', $_SESSION[ 'returnvar' ] );
+    foreach ( $arr as $str )
     {
-        if(empty($str) || strlen($str) <= 3) continue;
+        if ( empty( $str ) || strlen( $str ) <= 3 )
+            continue;
         echo <<<ENDHTML
     <div class="infobox">$str</div><br />
 ENDHTML;
     }
-    $_SESSION['returnvar'] = "";
-    unset($_SESSION['returnvar']);
+    $_SESSION[ 'returnvar' ] = "";
+    unset( $_SESSION[ 'returnvar' ] );
 }
 
 if ( !$isloggedin )
@@ -110,12 +112,11 @@ if ( !$isloggedin )
 </table>
 </form>
 ENDHTML;
-
+    
 }
 
 else if ( $archiver_config[ 'login_enabled' ] )
 {
-    
     echo <<<ENDHTML
 <form action="?refresh" method="POST">
 <input type="hidden" name="user" value="" />
@@ -184,7 +185,7 @@ foreach ( $threads as $thr )
         $link        = "<a href=\"$local\">{$thr[0]}</a>";
         $check       = "";
     }
-    if($delenabled)
+    if ( $delenabled )
         $check .= <<<ENDHTML
     <input type="submit" name="del" onclick="if(confirm('Delete files too?')) document.getElementById('files{$i}').value='1';" value="Remove"/>
 ENDHTML;
@@ -212,8 +213,10 @@ ENDHTML;
 }
 
 echo "</table><br />";
-$bookmarkleturl = "http://" . ($_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_SERVER["SERVER_NAME"]) . $_SERVER["SCRIPT_NAME"];
+$bookmarkleturl = "http://" . ( $_SERVER[ 'HTTP_HOST' ] ? $_SERVER[ 'HTTP_HOST' ] : $_SERVER[ "SERVER_NAME" ] ) . $_SERVER[ "SCRIPT_NAME" ];
 ?>
-<font size="1" family="Verdana">downloaded from <a href="http://github.com/emoose/4chan-archiver/">github.com/emoose/4chan-archiver</a>. <abbr title="use this when you're on the page you want to archive"><a href="javascript:open('<?php echo $bookmarkleturl; ?>?add=Add&url=' + document.URL.replace('http://', ''));">bookmarklet</a></abbr></font>
+<font size="1" family="Verdana">downloaded from <a href="http://github.com/emoose/4chan-archiver/">github.com/emoose/4chan-archiver</a>. <abbr title="use this when you're on the page you want to archive"><a href="javascript:open('<?php
+echo $bookmarkleturl;
+?>?add=Add&url=' + document.URL.replace('http://', ''));">bookmarklet</a></abbr></font>
 </body>
 </html>

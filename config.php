@@ -40,9 +40,10 @@ $archiver_config[ 'login_user' ] = "eggman";
 $archiver_config[ 'login_pass' ] = "implying";
 
 // -----------------------------------------------------------
-// INTERNAL STUFF
-// leave this alone
+// ADVANCED STUFF
+// you should probably leave this alone
 // -----------------------------------------------------------
 
-$archiver_config[ 'login_enabled' ] = $archiver_config[ 'login_del' ] || $archiver_config[ 'login_add' ] || $archiver_config[ 'login_chk' ];
+$archiver_config[ 'updater_enabled' ] = true;
+$archiver_config[ 'login_enabled' ]   = $archiver_config[ 'login_del' ] || $archiver_config[ 'login_add' ] || $archiver_config[ 'login_chk' ];
 ?>
