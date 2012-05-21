@@ -26,10 +26,6 @@ Installation:
 
 Have fun! and if you are updating MAKE SURE YOU DELETE VERSION.TXT!
 
-Todo:
-* AJAX everything up
-* Parse messages/users/emails and have them in the DB (instead of just copying the raw html from 4chan)
-
 Any bugs? Post on the github!
 
 https://github.com/emoose/4chan-archiver
