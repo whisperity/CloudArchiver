@@ -1,0 +1,1 @@
+ALTER TABLE `Threads` ADD `TimeAdded` INT( 15 ) NOT NULL

@@ -230,7 +230,7 @@ class chan_archiver
         if ( $num > 0 )
             return false;
         // guess we don't, lets add it
-        $query = mysql_query( sprintf( "INSERT INTO `Threads` ( `ID`, `Board`, `Status`, `LastChecked`, `Description` ) VALUES ( '%s', '%s', '1', '0', '%s' )", $threadid, $board, $description ) );
+        $query = mysql_query( sprintf( "INSERT INTO `Threads` ( `ID`, `Board`, `Status`, `LastChecked`, `Description`, `TimeAdded` ) VALUES ( '%s', '%s', '1', '0', '%s', '%s' )", $threadid, $board, $description, time() ) );
         if ( !$query )
             die( 'Could not add thread: ' . mysql_error() );
         $this->closeDB();
@@ -289,7 +289,7 @@ class chan_archiver
     public function getThreads()
     {
         $this->connectDB();
-        $query = mysql_query( "SELECT * FROM `Threads`" );
+        $query = mysql_query( "SELECT * FROM `Threads` ORDER BY `Board`, `TimeAdded`, `ID` ASC" );
         if ( !$query )
             die( 'Could not query database: ' . mysql_error() );
         $thrarray = array();
