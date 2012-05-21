@@ -250,8 +250,10 @@ class chan_archiver
             return false;
         if ( $deletefiles )
         {
-            $this->rrmdir( $archiver_config[ 'storage' ] . $board . "/" . $threadid . "/" );
-            unlink( $archiver_config[ 'storage' ] . $board . "/" . $threadid . ".html" );
+            if(is_dir( $archiver_config[ 'storage' ] . $board . "/" . $threadid . "/" ))
+                $this->rrmdir( $archiver_config[ 'storage' ] . $board . "/" . $threadid . "/" );
+            if(file_exists( $archiver_config[ 'storage' ] . $board . "/" . $threadid . ".html" ))
+                unlink( $archiver_config[ 'storage' ] . $board . "/" . $threadid . ".html" );
         }
         mysql_query( sprintf( "DELETE FROM `Threads` WHERE `ID` = '%s' AND Board = '%s'", $threadid, $board ) );
         mysql_query( sprintf( "DELETE FROM `Posts` WHERE `ThreadID` = '%s' AND Board = '%s'", $threadid, $board ) );
