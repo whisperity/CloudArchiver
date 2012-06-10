@@ -6,6 +6,7 @@ GNU public license 3 blah blah blah, can't be bothered to add the text and stuff
 These small scripts let you create your own little 4chan archive, without needing to use crappy advert ridden websites! (or overly worked on perl scripts, this is 4 hours work)
 
 Features:
+---------
 
 * Fully parse and download any thread
 * Very small overhead
@@ -13,12 +14,14 @@ Features:
 * Simple login system (see config.php)
 
 Requires:
+---------
 
 * PHP 4+
 * MySQL
 * Server that supports cronjobs (or some other kind of scheduling device)
 
 Installation:
+-------------
 
 1. Import chanarchive.sql into some database
 2. Setup config.php with your paths and mysql info
