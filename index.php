@@ -12,7 +12,7 @@ if ( isset( $_REQUEST[ 'login' ] ) && isset( $_REQUEST[ 'user' ] ) && isset( $_R
     $_SESSION[ 'pword' ] = $_REQUEST[ 'pass' ];
 }
 // commands
-$isloggedin = ( isset( $_SESSION[ 'uname' ] ) && isset( $_SESSION[ 'pword' ] ) && $_SESSION[ 'uname' ] == $archiver_config[ 'login_user' ] && $_SESSION[ 'pword' ] == $archiver_config[ 'login_pass' ] ) || !$archiver_config[ 'login_enabled' ];
+$isloggedin = ( isset( $_SESSION[ 'uname' ] ) && isset( $_SESSION[ 'pword' ] ) && $t->login($_SESSION[ 'uname' ], $_SESSION[ 'pword' ]) ) || !$archiver_config[ 'login_enabled' ];
 $delenabled = ( !$archiver_config[ 'login_del' ] || $isloggedin );
 $chkenabled = ( !$archiver_config[ 'login_chk' ] || $isloggedin );
 $addenabled = ( !$archiver_config[ 'login_add' ] || $isloggedin );
@@ -47,32 +47,79 @@ if ( $return != "" )
     exit;
 }
 echo <<<ENDHTML
-<html>
-<head>
-<title>4chan archiver - by anon e moose</title>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="robots" content="noarchive">
+<title>CloudArchiver</title>
+<link rel="stylesheet" type="text/css" href="./assets/yui.2.css">
+<link rel="stylesheet" type="text/css" href="./assets/global.7.css">
 <link rel="icon" type="image/vnd.microsoft.icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="http://static.4chan.org/image/apple-touch-icon-iphone.png">
+<link rel="apple-touch-icon" sizes="72x72" href="http://static.4chan.org/image/apple-touch-icon-ipad.png">
+<link rel="apple-touch-icon" sizes="114x114" href="http://static.4chan.org/image/apple-touch-icon-iphone-retina.png">
+<link rel="apple-touch-icon" sizes="144x144" href="http://static.4chan.org/image/apple-touch-icon-ipad-retina.png">
+<link rel="stylesheet" type="text/css" href="./assets/faq.2.css">
 <style type="text/css">
 .infobox{
-width:350px;
-border:solid 1px #DEDEDE;
-background:#FFFFCC url(images/menu_tick.png) 8px 6px no-repeat;
-color:#222222;
+width:725px;
+border:solid 1px #800;
+background:#E04000 url(images/menu_tick.png) 8px 6px no-repeat;
+color:#FFFFFF;
 padding:4px;
 text-align:center;
 }
 .alertbox{
-width:350px;
-border:solid 1px #DEDEDE;
+width:725px;
+border:solid 1px #800;
 background:#FF3330 url(images/menu_light.png) 8px 6px no-repeat;
-color:#222222;
+color:#FFFFFF;
 padding:4px;
 text-align:center;
 }
 </style>
-</head>
-<body>
-<a href="http://github.com/emoose/4chan-archiver/"><h2>4chan archiver - by anon e moose</h2></a>
+</head><link rel="stylesheet" type="text/css" href="data:text/css,">
+<body style="background: #FFE url('./assets/fade.png') top repeat-x; color: #800;">
+  <div id="header_nav" style="text-align: right; position:absolute; right:0px; width:600px; padding: 3px; border: 1px #800; color: #800; display: block;">
 ENDHTML;
+if ( !$isloggedin )
+{
+    echo <<<ENDHTML
+<form action="?refresh" method="POST">
+Username: <input type="text" name="user" size="20" /> Password: <input type="password" name="pass" size="20" /> <input type="submit" name="login" value="Login"/>
+</form>
+<br />
+ENDHTML;
+    
+}
+else if ( $archiver_config[ 'login_enabled' ] )
+{
+    echo <<<ENDHTML
+<form action="?refresh" method="POST">
+<input type="hidden" name="user" value="" />
+<input type="hidden" name="pass" value="" />
+<input type="submit" name="login" value="Logout"/>
+</form>
+ENDHTML;
+}
+
+echo <<<ENDHTML
+  
+  </div>
+  <div id="doc">
+    <div id="hd">
+      <div id="logo" style="background: url('./assets/logo.png') top left no-repeat; font-size: 1px; line-height: 0; height: 120px; overflow: hidden; margin: 0 auto; width: 300px;">
+        <h1>CloudArchiver</h1>
+      </div>
+    </div>
+      <div class="box-outer top-box">
+        <div class="box-inner">
+          <div class="boxbar">
+            <h2>Archives</h2>
+                      </div>
+          <div class="boxcontent">
+ENDHTML;
+
 if ( $t->updateAvailable )
 {
     echo <<<ENDHTML
@@ -94,54 +141,30 @@ ENDHTML;
     unset( $_SESSION[ 'returnvar' ] );
 }
 
-if ( !$isloggedin )
-{
-    echo <<<ENDHTML
-<form action="?refresh" method="POST">
-<table border="1" bordercolor="#FFCC00" style="background-color:#FFFFCC" width="340" cellpadding="3" cellspacing="3">
-	<tr>
-        <td><b>Admin Login</b></td>
-    </tr>
-    <tr>
-        <td>Username: <input type="text" name="user" size="20" /></td>
-    </tr>
-    <tr>
-        <td>Password: <input type="password" name="pass" size="20" /></td>
-        <td><input type="submit" name="login" value="Login"/></td>
-    </tr>
-</table>
-</form>
-ENDHTML;
-    
-}
 
-else if ( $archiver_config[ 'login_enabled' ] )
-{
-    echo <<<ENDHTML
-<form action="?refresh" method="POST">
-<input type="hidden" name="user" value="" />
-<input type="hidden" name="pass" value="" />
-<input type="submit" name="login" value="Logout"/>
-</form>
-ENDHTML;
-}
+
+
 if ( $addenabled )
 {
     echo <<<ENDHTML
+	<br />
 <form action="?refresh" method="POST">
-<table border="1" bordercolor="#FFCC00" style="background-color:#FFFFCC" width="610" cellpadding="3" cellspacing="3">
+<table border="0" width="540" cellpadding="3" cellspacing="3">
 	<tr>
         <td><b>Add Thread</b></td>
     </tr>
     <tr>
-        <td>Thread URL: <input type="text" name="url" size="60" /></td>
+        <td>Thread URL: </td><td><input type="text" name="url" size="60" /></td>
     </tr>
     <tr>
-        <td>Thread Description: <input type="text" name="desc" size="60" /></td>
-        <td><input type="submit" name="add" value="Add"/></td>
+        <td>Thread Description: </td><td><input type="text" name="desc" size="60" /></td>
     </tr>
+	<tr>
+	<td><input type="submit" name="add" value="Add"/></td>
+	</tr>
 </table>
 </form>
+</br>
 ENDHTML;
 }
 $threads = $t->getThreads();
@@ -156,7 +179,8 @@ if ( $chkenabled )
 ENDHTML;
 }
 echo <<<ENDHTML
-<table border="1" bordercolor="#FFCC00" style="background-color:#FFFFCC" width="900" cellpadding="3" cellspacing="3">
+<br />
+<table border="1" bordercolor="#800" style="background-color: #FCA" width="735" cellpadding="3" cellspacing="3">
 	<tr>
 		<td>Thread ID</td>
 		<td>Board</td>
@@ -213,10 +237,23 @@ ENDHTML;
 }
 
 echo "</table><br />";
+echo <<<ENDHTML
+
+    </div>
+        </div>
+      </div>
+	  <div id="ft">
+      <br class="clear-bug">
+      <div id="copyright"><a href="https://github.com/steamruler/CloudArchiver">GitHub</a> • 
+ENDHTML;
 $bookmarkleturl = "http://" . ( $_SERVER[ 'HTTP_HOST' ] ? $_SERVER[ 'HTTP_HOST' ] : $_SERVER[ "SERVER_NAME" ] ) . $_SERVER[ "SCRIPT_NAME" ];
 ?>
-<font size="1" family="Verdana">downloaded from <a href="http://github.com/emoose/4chan-archiver/">github.com/emoose/4chan-archiver</a>. <abbr title="use this when you're on the page you want to archive"><a href="javascript:open('<?php
+<abbr title="Use this when you're on the page you want to archive"><a href="javascript:open('<?php
 echo $bookmarkleturl;
-?>?add=Add&url=' + document.URL.replace('http://', ''));">bookmarklet</a></abbr></font>
+?>?add=Add&url=' + document.URL.replace('http://', ''));">Bookmarklet</a></abbr>
+	  <br />
+      Not affilated with 4chan in any way. Released under the GNU General License 3.
+      </div>
+    </div>
 </body>
 </html>

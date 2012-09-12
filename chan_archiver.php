@@ -8,8 +8,8 @@ class chan_archiver
 {
     public $mysql;
     public $threadurl = "http://boards.4chan.org/%s/res/%s"; // board, ID
-    public $updaterurl = "https://github.com/emoose/4chan-archiver/tarball/master";
-    public $compareurl = "https://github.com/emoose/4chan-archiver/compare/";
+    public $updaterurl = "https://github.com/steamruler/CloudArchiver/tarball/master";
+    public $compareurl = "https://github.com/steamruler/CloudArchiver/compare/";
     public $currentVersion;
     public $latestVersion;
     public $updateAvailable;
@@ -50,7 +50,7 @@ class chan_archiver
     {
         $headers = get_headers( $this->updaterurl, 1 );
         $latest  = explode( "filename=", $headers[ 'Content-Disposition' ] );
-        $latest  = str_replace( ".tar.gz", "", str_replace( "emoose-4chan-archiver-", "", $latest[ 1 ] ) );
+        $latest  = str_replace( ".tar.gz", "", str_replace( "steamruler-CloudArchiver-", "", $latest[ 1 ] ) );
         return $latest;
     }
     
@@ -259,6 +259,37 @@ class chan_archiver
         mysql_query( sprintf( "DELETE FROM `Posts` WHERE `ThreadID` = '%s' AND Board = '%s'", $threadid, $board ) );
         $this->closeDB();
         return sprintf( "Removed thread %s (/%s/)<br />\r\n", $threadid, $board );
+    }
+	
+	public function login( $username, $passhash )
+    {
+		$passhashhash = hash('sha512', $passhash);
+        $query = mysql_query( sprintf( "SELECT * FROM `Users` WHERE `Username` = '%s' AND `PassHash` = '%s'", $username, $passhashhash) );
+        if ( !$query )
+            die( 'Could not query database: ' . mysql_error() );
+        $num = mysql_num_rows( $query );
+        if ( $num <= 0 )
+		{
+            return false;
+		}
+		else
+		{
+			return true;
+        }
+        $this->closeDB();
+    }
+	
+	public function register( $username, $passhash )
+    {
+		$passhashhash = hash('sha512', $passhash);
+        $query = mysql_query( sprintf( "INSERT INTO `Users` ( `Username`, `PassHash` ) VALUES ( '%s', '%s' )", $username, $passhashhash ) );
+        if ( !$query )
+            return mysql_errno(); //http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
+		else
+		{
+			return true;
+        }
+        $this->closeDB();
     }
     
     public function setThreadDescription( $threadid, $board, $description )

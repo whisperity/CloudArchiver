@@ -37,6 +37,17 @@ CREATE TABLE IF NOT EXISTS `Threads` (
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `Users`
+--
+
+CREATE TABLE IF NOT EXISTS `Users` (
+  `Username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `PassHash` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
