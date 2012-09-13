@@ -19,7 +19,7 @@ Requires:
 
 * PHP 4+
 * MySQL
-* Windows Server 2008 (Preferably running XAMMP)
+* Apache
 
 Installation:
 -------------
