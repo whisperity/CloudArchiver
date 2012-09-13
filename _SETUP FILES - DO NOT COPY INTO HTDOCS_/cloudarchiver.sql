@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `Threads` (
 
 CREATE TABLE IF NOT EXISTS `Users` (
   `Username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `PassHash` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `PassHash` varchar(255) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
