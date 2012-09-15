@@ -35,6 +35,9 @@ $archiver_config[ 'login_add' ] = true;
 // if this is set to true you need to login to delete or change description of threads
 $archiver_config[ 'login_del' ] = true;
 
+// is registration enabled?
+$archiver_config[ 'register_enabled' ] = true;
+
 // -----------------------------------------------------------
 // ADVANCED STUFF
 // you should probably leave this alone

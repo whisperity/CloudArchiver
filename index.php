@@ -1,6 +1,7 @@
 <?php
+error_reporting( E_ALL );
 session_start();
-include "chan_archiver.php";
+require "chan_archiver.php";
 $t = new chan_archiver();
 if ( !isset($archiver_config[ 'updater_enabled' ]) || $archiver_config[ 'updater_enabled' ] )
     $t->doUpdate();
@@ -37,7 +38,7 @@ if ( $addenabled && isset( $_REQUEST[ 'add' ] ) && isset( $_REQUEST[ 'url' ] ) )
     if ( !isset( $_REQUEST[ 'desc' ] ) )
         $_REQUEST[ 'desc' ] = "";
     if ( $c = preg_match_all( "/.*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?((?:[a-z][a-z0-9_]*)).*?(\d+)/is", $_REQUEST[ 'url' ], $matches ) )
-        $return .= $t->addThread( $matches[ 2 ][ 0 ], $matches[ 1 ][ 0 ], $_REQUEST[ 'desc' ] );
+        $return .= $t->addThread( $matches[ 2 ][ 0 ], $matches[ 1 ][ 0 ], $_REQUEST[ 'desc' ], $_SESSION[ 'uname' ] );
 }
 
 if ( $return != "" )
@@ -106,6 +107,18 @@ ENDHTML;
 echo <<<ENDHTML
   
   </div>
+ENDHTML;
+
+if ( $archiver_config[ 'register_enabled' ] )
+{
+	echo <<<ENDHTML
+	<div id="header_nav2" style="text-align: left; position:absolute; left:0px; width:600px; padding: 3px; border: 1px #800; color: #800; display: block;">
+	<a href="./register/">[Register]</a>
+	</div>
+ENDHTML;
+}
+
+echo <<<ENDHTML
   <div id="doc">
     <div id="hd">
       <div id="logo" style="background: url('./assets/logo.png') top left no-repeat; font-size: 1px; line-height: 0; height: 120px; overflow: hidden; margin: 0 auto; width: 300px;">
@@ -184,6 +197,7 @@ echo <<<ENDHTML
 	<tr>
 		<td>Thread ID</td>
 		<td>Board</td>
+		<td>Added by</td>
 		<td>Description</td>
 		<td>Status</td>
 		<td>Last Checked</td>
@@ -198,7 +212,8 @@ foreach ( $threads as $thr )
     $lastchecked = time() - $thr[ 3 ] . " seconds ago";
     if ( $thr[ 3 ] == 0 )
         $lastchecked = "never";
-    $status = $thr[ 2 ] == 1 ? "Ongoing" : "404'd";
+    $status = $thr[ 2 ] == 1 ? "Alive" : "Dead";
+	$addedby = $thr[ 6 ];
     $local  = $archiver_config[ 'pubstorage' ] . $thr[ 1 ] . "/" . $thr[ 0 ] . ".html";
     $link   = "<a href=\"$thrlink\">{$thr[0]}</a> <a href=\"$local\">(local)</a>";
     $check  = $chkenabled ? "<input type=\"submit\" name=\"chk\" value=\"Check\"/>" : "";
@@ -206,7 +221,7 @@ foreach ( $threads as $thr )
     if ( $thr[ 2 ] == 0 )
     {
         $lastchecked = "";
-        $link        = "<a href=\"$local\">{$thr[0]}</a>";
+        $link        = "{$thr[0]} <a href=\"$local\">(local)</a>";
         $check       = "";
     }
     if ( $delenabled )
@@ -224,7 +239,8 @@ ENDHTML;
     <input type="hidden" name="files" id="files{$i}" value="0"/>
 	<tr>
 		<td>$link</td>
-		<td>{$thr[1]}</td>
+		<td>/{$thr[1]}/</td>
+		<td>$addedby</td>
 		<td>$desc</td>
 		<td>$status</td>
 		<td>$lastchecked</td>

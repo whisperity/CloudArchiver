@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS `Posts` (
   `ThreadID` int(15) NOT NULL,
   `Board` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
   `PostTime` int(15) NOT NULL
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `ID` (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
@@ -32,7 +34,10 @@ CREATE TABLE IF NOT EXISTS `Threads` (
   `Description` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `Status` tinyint(1) NOT NULL,
   `LastChecked` int(15) NOT NULL,
-  `TimeAdded` int(15) NOT NULL
+  `TimeAdded` int(15) NOT NULL,
+  `AddedBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `ID` (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
@@ -42,8 +47,10 @@ CREATE TABLE IF NOT EXISTS `Threads` (
 --
 
 CREATE TABLE IF NOT EXISTS `Users` (
-  `Username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `Username` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `PassHash` varchar(255) COLLATE utf8_unicode_ci NOT NULL
+  PRIMARY KEY (`Username`),
+  UNIQUE KEY `Username` (`Username`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
