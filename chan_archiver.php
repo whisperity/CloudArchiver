@@ -14,7 +14,7 @@ class chan_archiver
     public $latestVersion;
     public $updateAvailable;
 	
-	protected function cleanQuery($string)
+	public function cleanQuery($string)
 	{
 		if(get_magic_quotes_gpc())  // prevents duplicate backslashes
 		{
