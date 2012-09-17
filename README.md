@@ -2,7 +2,7 @@ CloudArchiver
 ==============
 Based on https://github.com/emoose/4chan-archiver
 ---------
-Uses the GNU General Public License, version 3 available here: http://www.gnu.org/copyleft/gpl.html
+Uses the GNU General Public License, version 3 available here: http://www.gnu.org/licenses/gpl-3.0-standalone.html
 
 These small scripts let you create your own little 4chan archive, without needing to use crappy advert ridden websites! (or overly worked on perl scripts, this is 4 hours work)
 
