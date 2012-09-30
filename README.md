@@ -17,7 +17,7 @@ Features:
 Requires:
 ---------
 
-* PHP 4+
+* PHP 5.1.0 or newer
 * MySQL
 * Apache
 
