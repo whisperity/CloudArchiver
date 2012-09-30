@@ -26,7 +26,7 @@ Installation:
 
 1. Import cloudarchiver.sql (Inside the Setup Files folder) into a Database.
 2. Setup config.php with your paths and MySQL info.
-3. Import and make edits to the task (CloudArchiver_Cronjob.xml inside the Setup Files).
+3. Windows Users can import CloudArchiver_Task.xml while Linux users can create a cronjob.
 
 Any bugs? Post on the github!
 https://github.com/steamruler/CloudArchiver

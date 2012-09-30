@@ -33,8 +33,15 @@ if ( $delenabled && isset( $_REQUEST[ 'upd' ] ) && isset( $_REQUEST[ 'id' ] ) &&
 
 if ( $addenabled && isset( $_REQUEST[ 'add' ] ) && isset( $_REQUEST[ 'url' ] ) )
 {
-    if ( substr( $_REQUEST[ 'url' ], 0, 7 ) != "http://" )
-        $_REQUEST[ 'url' ] = "http://" . $_REQUEST[ 'url' ];
+    if ( substr( $_REQUEST[ 'url' ], 0, 8 ) == "https://" )
+	{
+		$_REQUEST[ 'url' ] = "http://" . substr( $_REQUEST[ 'url' ], 9 );
+	}
+	else if ( substr( $_REQUEST[ 'url' ], 0, 7 ) != "http://" )
+	{
+		$return = "Invalid link";
+	}
+        
     if ( !isset( $_REQUEST[ 'desc' ] ) )
         $_REQUEST[ 'desc' ] = "";
     if ( $c = preg_match_all( "/.*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?(?:[a-z][a-z0-9_]*).*?((?:[a-z][a-z0-9_]*)).*?(\d+)/is", $_REQUEST[ 'url' ], $matches ) )
