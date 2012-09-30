@@ -154,7 +154,7 @@ class chan_archiver
 			$num2++;
         }
         $this->closeDB();
-		$return = "Checked " . $num2 . " threads at " . date(H:i) . ".";
+		$return = "Checked " . $num2 . " threads at " . date('H:i') . ".";
         return $return;
     }
     
