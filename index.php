@@ -233,7 +233,7 @@ foreach ( $threads as $thr )
     if ( $thr[ 3 ] == 0 )
 	{
 		$lastchecked = "";
-		$lastchecked_end = "never";
+		$lastchecked_end = "never"
 	}
 	
     $status = $thr[ 2 ] == 1 ? "Alive" : "Dead";
