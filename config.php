@@ -9,7 +9,7 @@ $archiver_config = array();
 $archiver_config[ 'storage' ] = "C:\\xampp\\htdocs\\4arch\\data\\";
 
 // the publicly accessible link to the file store
-$archiver_config[ 'pubstorage' ] = "https://***.***.***.***/4arch/data/";
+$archiver_config[ 'pubstorage' ] = "http://***.***.***.***/4arch/data/";
 
 // -----------------------------------------------------------
 // MYSQL CONFIG
@@ -37,6 +37,9 @@ $archiver_config[ 'login_del' ] = true;
 
 // is registration enabled?
 $archiver_config[ 'register_enabled' ] = true;
+
+// can you only remove and check your own threads?
+$archiver_config[ 'restrict_actions' ] = true;
 
 // -----------------------------------------------------------
 // ADVANCED STUFF

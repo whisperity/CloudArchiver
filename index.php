@@ -184,7 +184,7 @@ $threads = $t->getThreads();
 echo "<form action=\"?refresh\" method=\"POST\">";
 if ( $chkenabled )
 {
-    $onclick = $t->getOngoingThreadCount() >= 10 ? "alert('Since you have many ongoing threads it may seem like the page has hung, just be patient and they will all update');" : "";
+    $onclick = $t->getOngoingThreadCount() >= 10 ? "alert('Since there are many ongoing threads it may seem like the page has hung, just be patient and they will all update');" : "";
     echo <<<ENDHTML
 <form action="?refresh" method="POST">
 <input type="submit" name="chka" onclick="$onclick" value="Recheck All"/>
@@ -216,15 +216,25 @@ foreach ( $threads as $thr )
 	$addedby = $thr[ 6 ];
     $local  = $archiver_config[ 'pubstorage' ] . $thr[ 1 ] . "/" . $thr[ 0 ] . ".html";
     $link   = "<a href=\"$thrlink\">{$thr[0]}</a> <a href=\"$local\">(local)</a>";
-    $check  = $chkenabled ? "<input type=\"submit\" name=\"chk\" value=\"Check\"/>" : "";
-    $desc   = $delenabled ? "<input type=\"text\" name=\"desc\" value=\"{$thr[4]}\"/><input type=\"submit\" name=\"upd\" value=\"Update\"/>" : $thr[ 4 ];
+	if ( $archiver_config[ 'restrict_actions' ] )
+	{
+		$delallowed = ( $delenabled && ($addedby == $_SESSION[ 'uname' ]) );
+		$chkallowed = ( $chkenabled && ($addedby == $_SESSION[ 'uname' ]) );
+	}
+	else
+	{
+		$delallowed = $delenabled;
+		$chkallowed = $chkenabled;
+	}
+    $check  = $chkallowed ? "<input type=\"submit\" name=\"chk\" value=\"Check\"/>" : "";
+    $desc   = $delallowed ? "<input type=\"text\" name=\"desc\" value=\"{$thr[4]}\"/><input type=\"submit\" name=\"upd\" value=\"Update\"/>" : $thr[ 4 ];
     if ( $thr[ 2 ] == 0 )
     {
         $lastchecked = "";
         $link        = "{$thr[0]} <a href=\"$local\">(local)</a>";
         $check       = "";
     }
-    if ( $delenabled )
+    if ( $delallowed )
         $check .= <<<ENDHTML
     <input type="submit" name="del" onclick="if(confirm('Delete files too?')) document.getElementById('files{$i}').value='1';" value="Remove"/>
 ENDHTML;
