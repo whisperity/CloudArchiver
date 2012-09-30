@@ -144,15 +144,17 @@ class chan_archiver
         $num = mysql_num_rows( $query );
         if ( $num <= 0 )
             return false;
-        $return = "";
+		$num2 = 0;
         while ( $row = mysql_fetch_object( $query ) )
         {
             if ( $checktime && time() - $row->LastChecked < 90 )
                 continue;
             
-            $return .= $this->updateThread( $row->ID, $row->Board );
+            $this->updateThread( $row->ID, $row->Board );
+			$num2++;
         }
         $this->closeDB();
+		$return = "Checked " . $num2 . " threads at " . date(H:i) . ".";
         return $return;
     }
     

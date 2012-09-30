@@ -216,9 +216,24 @@ $i = 0;
 foreach ( $threads as $thr )
 {
     $thrlink     = sprintf( $t->threadurl, $thr[ 1 ], $thr[ 0 ] );
-    $lastchecked = time() - $thr[ 3 ] . " seconds ago";
+    $lastchecked = time() - $thr[ 3 ];
+	$lastchecked_end = " seconds ago";
+	if ($lastchecked > 60)
+	{
+		$lastchecked = floor($lastchecked / 60);
+		$lastchecked_end = " minutes ago";
+		if ($lastchecked > 60)
+		{
+			$lastchecked = floor($lastchecked / 60);
+			$lastchecked_end = "hours ago";
+		}
+	}
     if ( $thr[ 3 ] == 0 )
-        $lastchecked = "never";
+	{
+		$lastchecked = "";
+		$lastchecked_end = "never";
+	}
+	
     $status = $thr[ 2 ] == 1 ? "Alive" : "Dead";
 	$addedby = $thr[ 6 ];
     $local  = $archiver_config[ 'pubstorage' ] . $thr[ 1 ] . "/" . $thr[ 0 ] . ".html";
@@ -260,7 +275,7 @@ ENDHTML;
 		<td>$addedby</td>
 		<td>$desc</td>
 		<td>$status</td>
-		<td>$lastchecked</td>
+		<td>$lastchecked$lastchecked_end</td>
 		<td>$lastpost</td>
 		<td>$check</td>
 	</tr>
