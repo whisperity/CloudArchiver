@@ -1,11 +1,25 @@
+-- phpMyAdmin SQL Dump
+-- version 3.3.7deb7
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Generation Time: Jan 03, 2013 at 03:22 AM
+-- Server version: 5.1.66
+-- PHP Version: 5.3.3-7+squeeze14
+
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
+
+--
+-- Database: `CloudArchiver`
+--
+CREATE DATABASE `CloudArchiver` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
+USE `CloudArchiver`;
 
 -- --------------------------------------------------------
 
@@ -14,13 +28,17 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `Posts` (
-  `ID` int(15) NOT NULL,
-  `ThreadID` int(15) NOT NULL,
-  `Board` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
-  `PostTime` int(15) NOT NULL
-  PRIMARY KEY (`ID`),
-  UNIQUE KEY `ID` (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `ID` int(32) NOT NULL,
+  `ThreadID` int(32) NOT NULL,
+  `Board` varchar(16) COLLATE utf8_bin NOT NULL,
+  `PostTime` int(16) NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Dumping data for table `Posts`
+--
+
 
 -- --------------------------------------------------------
 
@@ -29,16 +47,20 @@ CREATE TABLE IF NOT EXISTS `Posts` (
 --
 
 CREATE TABLE IF NOT EXISTS `Threads` (
-  `ID` int(15) NOT NULL,
-  `Board` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
-  `Description` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `ID` int(16) NOT NULL,
+  `Board` varchar(16) COLLATE utf8_bin NOT NULL,
+  `Description` varchar(500) COLLATE utf8_bin NOT NULL,
   `Status` tinyint(1) NOT NULL,
-  `LastChecked` int(15) NOT NULL,
-  `TimeAdded` int(15) NOT NULL,
-  `AddedBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL
-  PRIMARY KEY (`ID`),
-  UNIQUE KEY `ID` (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `LastChecked` int(16) NOT NULL,
+  `TimeAdded` int(16) NOT NULL,
+  `AddedBy` varchar(50) COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Dumping data for table `Threads`
+--
+
 
 -- --------------------------------------------------------
 
@@ -47,14 +69,12 @@ CREATE TABLE IF NOT EXISTS `Threads` (
 --
 
 CREATE TABLE IF NOT EXISTS `Users` (
-  `Username` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `PassHash` varchar(255) COLLATE utf8_unicode_ci NOT NULL
-  PRIMARY KEY (`Username`),
-  UNIQUE KEY `Username` (`Username`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `Username` varchar(50) COLLATE utf8_bin NOT NULL,
+  `PassHash` varchar(255) COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`Username`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- --------------------------------------------------------
+--
+-- Dumping data for table `Users`
+--
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

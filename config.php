@@ -19,7 +19,7 @@ $archiver_config[ 'pubstorage' ] = "http://***.***.***.***/4arch/data/";
 $archiver_config[ 'mysql_host' ] = "localhost";
 $archiver_config[ 'mysql_user' ] = "root";
 $archiver_config[ 'mysql_pass' ] = "loljkstrongpasswordsarefortripfags";
-$archiver_config[ 'mysql_db' ]   = "4arch";
+$archiver_config[ 'mysql_db' ]   = "CloudArchiver";
 
 // -----------------------------------------------------------
 // ACCESS CONTROL
