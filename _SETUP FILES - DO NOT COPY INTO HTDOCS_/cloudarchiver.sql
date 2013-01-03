@@ -27,7 +27,7 @@ USE `CloudArchiver`;
 -- Table structure for table `Posts`
 --
 
-CREATE TABLE IF NOT EXISTS `Posts` (
+CREATE TABLE IF NOT EXISTS `posts` (
   `ID` int(32) NOT NULL,
   `ThreadID` int(32) NOT NULL,
   `Board` varchar(16) COLLATE utf8_bin NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `Posts` (
 -- Table structure for table `Threads`
 --
 
-CREATE TABLE IF NOT EXISTS `Threads` (
+CREATE TABLE IF NOT EXISTS `threads` (
   `ID` int(16) NOT NULL,
   `Board` varchar(16) COLLATE utf8_bin NOT NULL,
   `Description` varchar(500) COLLATE utf8_bin NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `Threads` (
 -- Table structure for table `Users`
 --
 
-CREATE TABLE IF NOT EXISTS `Users` (
+CREATE TABLE IF NOT EXISTS `users` (
   `Username` varchar(50) COLLATE utf8_bin NOT NULL,
   `PassHash` varchar(255) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`Username`)
