@@ -3,6 +3,7 @@ CloudArchiver
 Licence
 ---------
 Original code is licenced under GNU General Public License, version 3 available here: http://www.gnu.org/licenses/gpl-3.0-standalone.html
+
 My code (everything committed by Cloud Chiller/steamruler after commit 7[7cb6d4b65d82d79af4e4f55c3063c91b55f39a3](https://github.com/steamruler/CloudArchiver/commit/77cb6d4b65d82d79af4e4f55c3063c91b55f39a3)) is licenced under the very loose [Tiny Driplet Licence](http://cloudchiller.net/#Tiny%20Driplet%20Licence), made by yours truly.
 
 About this project
