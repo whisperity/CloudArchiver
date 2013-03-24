@@ -85,7 +85,7 @@ padding:4px;
 text-align:center;
 }
 </style>
-</head><link rel="stylesheet" type="text/css" href="data:text/css,">
+</head>
 <body style="background: #FFE url('./assets/fade.png') top repeat-x; color: #800;">
   <div id="header_nav" style="text-align: right; position:absolute; right:0px; width:600px; padding: 3px; border: 1px #800; color: #800; display: block;">
 ENDHTML;
@@ -293,7 +293,7 @@ $bookmarkleturl = "http://" . ( $_SERVER[ 'HTTP_HOST' ] ? $_SERVER[ 'HTTP_HOST' 
 echo $bookmarkleturl;
 ?>?add=Add&url=' + document.URL.replace('http://', ''));">Bookmarklet</a></abbr>
 	  <br />
-      Not affilated with 4chan in any way. Released under the GNU General License 3.
+      Not affiliated with 4chan in any way. Released under the GNU General License 3.
       </div>
     </div>
 </body>

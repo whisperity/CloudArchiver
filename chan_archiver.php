@@ -1,12 +1,12 @@
 <?php
-// enjoi -stk25
 error_reporting( E_ALL );
-
-include "config.php";
 
 class chan_archiver
 {
-    public $mysql;
+    /**
+     *
+     * @var mysqli
+     */
     private $mysqli;
     public $threadurl = "http://boards.4chan.org/%s/res/%s"; // board, ID
     
@@ -22,27 +22,6 @@ class chan_archiver
 	{
         return $this->mysqli->real_escape_string($string);
 	}
-	    
-    protected function connectDB()
-    {
-        global $archiver_config;
-        if ( !$this->mysql )
-        {
-            $this->mysql = mysql_connect( $archiver_config[ 'mysql_host' ], $archiver_config[ 'mysql_user' ], $archiver_config[ 'mysql_pass' ] );
-            if ( !$this->mysql )
-                die( 'Could not connect: ' . mysql_error() );
-            mysql_select_db( $archiver_config[ 'mysql_db' ], $this->mysql );
-        }
-    }
-    
-    protected function closeDB()
-    {
-        if ( $this->mysql )
-        {
-            mysql_close( $this->mysql );
-            $this->mysql = null;
-        }
-    }
     
     protected function getSource( $url )
     {
@@ -61,6 +40,7 @@ class chan_archiver
             while ( $line = fread( $handle, 8192 ) )
                 $file .= $line;
             fclose( $handle );
+            
             $this->writeFile( $file, $location );
         }
     }
@@ -76,12 +56,12 @@ class chan_archiver
         return false;
     }
     
-    protected function rrmdir( $dir )
+    protected function rmdir( $dir )
     {
         foreach ( glob( $dir . '/*' ) as $file )
         {
             if ( is_dir( $file ) )
-                $this->rrmdir( $file );
+                $this->rmdir( $file );
             else
                 unlink( $file );
         }
@@ -90,42 +70,45 @@ class chan_archiver
     
     public function checkThreads( $checktime )
     {
-        $this->connectDB();
-        $query = mysql_query( "SELECT * FROM `threads` WHERE `Status` = '1'" );
+        $query = $this->mysqli->query("SELECT * FROM `threads` WHERE `Status` = '1'");
         if ( !$query )
-            die( 'Could not query database: ' . mysql_error() );
-        $num = mysql_num_rows( $query );
-        if ( $num <= 0 )
+            die( 'Could not query database: ' . $this->mysqli->error() );
+        
+        if ( $query->num_rows <= 0 )
             return false;
-		$num2 = 0;
-        while ( $row = mysql_fetch_object( $query ) )
+        
+		$count = 0;
+        while ( $row = $query->fetch_object() )
         {
             if ( $checktime && time() - $row->LastChecked < 90 )
-                continue;
+		       continue;
             
             $this->updateThread( $row->ID, $row->Board );
-			$num2++;
+			$count++;
         }
-        $this->closeDB();
-		$return = "Checked " . $num2 . " threads at " . date('H:i') . ".";
+        
+        $return = "Checked " . $count . " threads at " . date('H:i') . ".";
         return $return;
     }
     
     public function updateThread( $threadid, $board )
     {
         global $archiver_config;
-        $this->connectDB();
-        $thrquery = mysql_query( sprintf( "SELECT * FROM `posts` WHERE `Board` = '%s' AND `ThreadID` = '%s'", $board, $threadid ) );
+        
+        $thrquery = $this->mysqli->query( sprintf( "SELECT * FROM `posts` WHERE `Board` = '%s' 
+            AND `ThreadID` = '%s'", $board, $threadid ) );
         $postarr  = array();
-        while ( $post = mysql_fetch_object( $thrquery ) )
+        while ( $post = $thrquery->fetch_object() )
             array_push( $postarr, $post->ID );
         
         $url  = sprintf( $this->threadurl, $board, $threadid );
         $data = $this->getSource( $url );
         if ( !$data ) // must have 404'd
         {
-            mysql_query( sprintf( "UPDATE `threads` SET `Status` = '0' WHERE `Board` = '%s' AND `ID` = '%s'", $board, $threadid ) );
-            mysql_query( sprintf( "DELETE FROM `posts` WHERE `Board` = '%s' AND `ThreadID` = '%s'", $board, $threadid ) );
+            $this->mysqli->real_query( sprintf( "UPDATE `threads` SET `Status` = '0' 
+                WHERE `Board` = '%s' AND `ID` = '%s'", $board, $threadid ) );
+            $this->mysqli->real_query( sprintf( "DELETE FROM `posts` 
+                WHERE `Board` = '%s' AND `ThreadID` = '%s'", $board, $threadid ) );
             return;
         }
         $fixeddata = str_replace( "=\"//", "=\"http://", $data );
@@ -178,66 +161,76 @@ class chan_archiver
                 $fixeddata = str_replace( $fileurl, $pubfilestor, $fixeddata );
                 $fixeddata = str_replace( $thumurl, $pubthumstor, $fixeddata );
             }
-            mysql_query( sprintf( "INSERT INTO `posts` ( `ID`, `ThreadID`, `Board`, `PostTime` ) VALUES ( '%s', '%s', '%s', '%s' )", $id, $threadid, $board, $posttime ) );
+            $this->mysqli->query( sprintf( "INSERT INTO `posts` ( `ID`, `ThreadID`, `Board`, `PostTime` ) 
+                VALUES ( '%s', '%s', '%s', '%s' )", $id, $threadid, $board, $posttime ) );
         }
         // fix for posts we already have downloaded
         $fixeddata = str_replace( "http://1.thumbs.4chan.org/" . $board . "/thumb/", $archiver_config[ 'pubstorage' ] . $board . "/" . $threadid . "/thumbs/", $fixeddata );
         $fixeddata = str_replace( "http://0.thumbs.4chan.org/" . $board . "/thumb/", $archiver_config[ 'pubstorage' ] . $board . "/" . $threadid . "/thumbs/", $fixeddata );
         $fixeddata = str_replace( "http://images.4chan.org/" . $board . "/src/", $archiver_config[ 'pubstorage' ] . $board . "/" . $threadid . "/", $fixeddata );
         // thread is done
-        mysql_query( sprintf( "UPDATE `threads` SET `LastChecked` = '%s' WHERE `Board` = '%s' AND `ID` = '%s'", time(), $board, $threadid ) );
+        $this->mysqli->real_query( sprintf( "UPDATE `threads` SET `LastChecked` = '%s' 
+            WHERE `Board` = '%s' AND `ID` = '%s'", time(), $board, $threadid ) );
         $this->writeFile( $fixeddata, $archiver_config[ 'storage' ] . $board . "/" . $threadid . ".html" );
-        $this->closeDB();
+        
         return sprintf( "Checked %s (/%s/) at %s<br />\r\n", $threadid, $board, time() );
     }
     
     public function addThread( $threadid, $board, $description, $usrnme )
     {
-        $this->connectDB();
-        // check if we already have it
-        $query = mysql_query( sprintf( "SELECT * FROM `threads` WHERE `ID` = '%s' AND Board = '%s'", $this->cleanQuery($threadid), $this->cleanQuery($board) ) );
+        // Check whether the thread is already added.
+        $query = $this->mysqli->query( sprintf( "SELECT * FROM `threads` WHERE `ID` = '%s' 
+            AND Board = '%s'", $this->cleanQuery($threadid), $this->cleanQuery($board) ) );
         if ( !$query )
-            die( 'Could not query database: ' . mysql_error() );
-        $num = mysql_num_rows( $query );
-        if ( $num > 0 )
+            die( 'Could not query database: ' . $this->mysqli->error );
+        
+        if ( $query->num_rows > 0 )
             return false;
-        // guess we don't, lets add it
-        $query = mysql_query( sprintf( "INSERT INTO `threads` ( `ID`, `Board`, `Status`, `LastChecked`, `Description`, `TimeAdded`, `AddedBy` ) VALUES ( '%s', '%s', '1', '0', '%s', '%s', '%s' )", $this->cleanQuery($threadid), $this->cleanQuery($board), $this->cleanQuery($description), time(), $this->cleanQuery($usrnme) ) );
-        if ( !$query )
-            die( 'Could not add thread: ' . mysql_error() );
-        $this->closeDB();
+        
+        // If the thread isn't added yet, we do so.
+        $add_query = $this->mysqli->query( sprintf( "INSERT INTO `threads`
+            ( `ID`, `Board`, `Status`, `LastChecked`, `Description`, `TimeAdded`, `AddedBy` )
+            VALUES ( '%s', '%s', '1', '0', '%s', '%s', '%s' )",
+                $this->cleanQuery($threadid), $this->cleanQuery($board), $this->cleanQuery($description),
+                time(), $this->cleanQuery($usrnme) ) );
+        if ( !$add_query )
+            die( 'Could not add thread: ' . $this->mysqli->error );
+        
         return sprintf( "Added thread %s (/%s/)<br />\r\n", $threadid, $board );
     }
     
     public function removeThread( $threadid, $board, $deletefiles = 0 )
     {
         global $archiver_config;
-        $this->connectDB();
-        // check if we already have it
-        $query = mysql_query( sprintf( "SELECT * FROM `threads` WHERE `ID` = '%s' AND Board = '%s'", $this->cleanQuery($threadid), $this->cleanQuery($board) ) );
+        
+        $query = $this->mysqli->query( sprintf( "SELECT * FROM `threads` WHERE `ID` = '%s' 
+            AND `Board` = '%s'", $this->cleanQuery($threadid), $this->cleanQuery($board) ) );
         if ( !$query )
-            die( 'Could not query database: ' . mysql_error() );
-        $num = mysql_num_rows( $query );
-        if ( $num <= 0 )
+            die( 'Could not query database: ' . $this->mysqli->error );
+        
+        if ( $query->num_rows <= 0 )
             return false;
+        
         if ( $deletefiles )
         {
             if(is_dir( $archiver_config[ 'storage' ] . $board . "/" . $threadid . "/" ))
-                $this->rrmdir( $archiver_config[ 'storage' ] . $board . "/" . $threadid . "/" );
+                $this->rmdir( $archiver_config[ 'storage' ] . $board . "/" . $threadid . "/" );
             if(file_exists( $archiver_config[ 'storage' ] . $board . "/" . $threadid . ".html" ))
                 unlink( $archiver_config[ 'storage' ] . $board . "/" . $threadid . ".html" );
         }
-        mysql_query( sprintf( "DELETE FROM `threads` WHERE `ID` = '%s' AND Board = '%s'", $this->cleanQuery($threadid), $this->cleanQuery($board) ) );
-        mysql_query( sprintf( "DELETE FROM `posts` WHERE `ThreadID` = '%s' AND Board = '%s'", $this->cleanQuery($threadid), $this->cleanQuery($board) ) );
-        $this->closeDB();
+        $this->mysqli->real_query( sprintf("DELETE FROM `threads` WHERE `ID` = '%s' 
+            AND `Board` = '%s'", $this->cleanQuery($threadid), $this->cleanQuery($board) ));
+        $this->mysqli->real_query( sprintf("DELETE FROM `posts` WHERE `ThreadID` = '%s'
+            AND `Board` = '%s'", $this->cleanQuery($threadid), $this->cleanQuery($board) ));
+        
         return sprintf( "Removed thread %s (/%s/)<br />\r\n", $threadid, $board );
     }
 	
 	public function login( $username, $password )
     {
 		$passhash = hash('sha512', $password);
-        $query = $this->mysqli->query(sprintf("SELECT Username, PassHash FROM users
-            WHERE Username = '%s' AND PassHash = '%s'", $this->cleanQuery($username), $passhash));
+        $query = $this->mysqli->query(sprintf("SELECT `Username`, `PassHash` FROM `users`
+            WHERE `Username` = '%s' AND `PassHash` = '%s'", $this->cleanQuery($username), $passhash));
         
         return ($query->num_rows === 1 ? true : false);
     }
@@ -245,72 +238,70 @@ class chan_archiver
 	public function register( $username, $password )
     {
         $passhash = hash('sha512', $password);
-        $query = $this->mysqli->query(sprintf("INSERT INTO users(Username, PassHash)
+        $query = $this->mysqli->query(sprintf("INSERT INTO `users` ( `Username`, `PassHash` )
             VALUES ('%s', '%s')", $this->cleanQuery($username), $passhash));
         
-        if ( !$query )
-        {
-            return $this->mysqli->errno;
-        }
-        else
-        {
-            return true;
-        }
+        return ($query ? true : $this->mysqli->errno);
     }
     
     public function setThreadDescription( $threadid, $board, $description )
     {
-        $this->connectDB();
-        // check if we already have it
-        $query = mysql_query( sprintf( "SELECT * FROM `threads` WHERE `ID` = '%s' AND Board = '%s'", $this->cleanQuery($threadid), $this->cleanQuery($board) ) );
+        // Check whether we already have the thread
+        $query = $this->mysqli->query( sprintf( "SELECT * FROM `threads` WHERE `ID` = '%s' 
+            AND Board = '%s'", $this->cleanQuery($threadid), $this->cleanQuery($board) ) );
         if ( !$query )
             die( 'Could not query database: ' . mysql_error() );
-        $num = mysql_num_rows( $query );
-        if ( $num <= 0 )
+        
+        if ( $query->num_rows <= 0 )
             return false;
-        mysql_query( sprintf( "UPDATE `threads` SET `Description` = '%s' WHERE `ID` = '%s' AND Board = '%s'", $this->cleanQuery($description), $this->cleanQuery($threadid), $this->cleanQuery($board) ) );
-        $this->closeDB();
+        
+        $this->mysqli->query( sprintf( "UPDATE `threads` SET `Description` = '%s' 
+            WHERE `ID` = '%s' AND Board = '%s'", $this->cleanQuery($description), 
+            $this->cleanQuery($threadid), $this->cleanQuery($board) ) );
+        
         return sprintf( "Updated thread %s (/%s/)<br />\r\n", $threadid, $board );
     }
     
     public function getOngoingThreadCount()
     {
-        $this->connectDB();
-        $query = mysql_query( "SELECT * FROM `threads` WHERE `Status` = '1'" );
+        $query = $this->mysqli->query("SELECT COUNT(`ID`) FROM `threads` WHERE `Status` = '1'");
         if ( !$query )
-            die( 'Could not query database: ' . mysql_error() );
+            die( 'Could not query database: ' . $this->mysqli->error );
         
-        $num = mysql_num_rows( $query );
-        $this->closeDB();
-        return $num;
+        $row = $query->fetch_row();
+        return $row[0];
     }
     
     public function getThreads()
     {
-        $this->connectDB();
-        $query = mysql_query( "SELECT * FROM `threads` ORDER BY `Board`, `TimeAdded`, `ID` ASC" );
+        $query = $this->mysqli->query("SELECT * FROM `threads` ORDER BY `Board`, `TimeAdded`, `ID` ASC");
         if ( !$query )
-            die( 'Could not query database: ' . mysql_error() );
+            die( 'Could not query database: ' .$this->mysqli->error);
+        
         $thrarray = array();
-        while ( $thr = mysql_fetch_object( $query ) )
+        
+        while ( $thr = $query->fetch_object() )
         {
-            $q2       = mysql_query( sprintf( "SELECT * FROM `posts` WHERE `ThreadID` = '%s' AND `Board` = '%s' ORDER BY `PostTime` DESC", $thr->ID, $thr->Board ) );
+            $posts = $this->mysqli->query( sprintf( "SELECT * FROM `posts` WHERE `ThreadID` = '%s' AND
+                `Board` = '%s' ORDER BY `PostTime` DESC", $thr->ID, $thr->Board));
             $lasttime = 0;
-            if ( !$q2 )
-                die( 'Could not query database: ' . mysql_error() );
-            if ( mysql_num_rows( $q2 ) > 0 )
-                $lasttime = mysql_fetch_object( $q2 )->PostTime;
+            if ( !$posts )
+                die( 'Could not query database: ' . $this->mysqli->error );
+            
+            if ( $posts->num_rows > 0 )
+                $lasttime = $posts->fetch_object()->PostTime;
+            
             array_push( $thrarray, array(
                  $thr->ID,
-                $thr->Board,
-                $thr->Status,
-                $thr->LastChecked,
-                $thr->Description,
-                $lasttime,
-				$thr->AddedBy
+                 $thr->Board,
+                 $thr->Status,
+                 $thr->LastChecked,
+                 $thr->Description,
+                 $lasttime,
+				 $thr->AddedBy
             ) );
         }
-        $this->closeDB();
+        
         return $thrarray;
     }
 }
