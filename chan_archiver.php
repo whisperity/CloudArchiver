@@ -7,6 +7,7 @@ include "config.php";
 class chan_archiver
 {
     public $mysql;
+    private $mysqli;
     public $threadurl = "http://boards.4chan.org/%s/res/%s"; // board, ID
     public $updaterurl = "https://github.com/steamruler/CloudArchiver/tarball/master";
     public $compareurl = "https://github.com/steamruler/CloudArchiver/compare/";
@@ -14,21 +15,17 @@ class chan_archiver
     public $latestVersion;
     public $updateAvailable;
 	
+    public function injectDatabase($mysqli)
+    {
+        if ($mysqli instanceof mysqli)
+            $this->mysqli = $mysqli;
+        else
+            die('Attempted to inject non-mysqli database provider.');
+    }
+    
 	public function cleanQuery($string)
 	{
-		if(get_magic_quotes_gpc())  // prevents duplicate backslashes
-		{
-			$string = stripslashes($string);
-		}
-		if (phpversion() >= '4.3.0')
-		{
-			$string = mysql_real_escape_string($string);
-		}
-		else
-		{
-			$string = mysql_escape_string($string);
-		}
-		return $string;
+        return $this->mysqli->real_escape_string($string);
 	}
 	
     public function doUpdate()
@@ -102,6 +99,8 @@ class chan_archiver
     
     protected function downloadFile( $url, $location )
     {
+        set_time_limit(0);
+        
         $file = "";
         if ( ( $handle = @fopen( $url, "r" ) ) )
         {
@@ -280,39 +279,29 @@ class chan_archiver
         return sprintf( "Removed thread %s (/%s/)<br />\r\n", $threadid, $board );
     }
 	
-	public function login( $username, $passhash )
+	public function login( $username, $password )
     {
-		global $archiver_config;
-		$this->connectDB();
-		$passhashhash = hash('sha512', $passhash);
-        $query = mysql_query( sprintf( "SELECT * FROM `users` WHERE `Username` = '%s' AND `PassHash` = '%s'", $this->cleanQuery($username), $passhashhash) );
-        if ( !$query )
-            die( 'Could not query database: ' . mysql_error() );
-        $num = mysql_num_rows( $query );
-        if ( $num <= 0 )
-		{
-            return false;
-		}
-		else
-		{
-			return true;
-        }
-        $this->closeDB();
+		$passhash = hash('sha512', $password);
+        $query = $this->mysqli->query(sprintf("SELECT Username, PassHash FROM users
+            WHERE Username = '%s' AND PassHash = '%s'", $this->cleanQuery($username), $passhash));
+        
+        return ($query->num_rows === 1 ? true : false);
     }
 	
-	public function register( $username, $passhash )
+	public function register( $username, $password )
     {
-		global $archiver_config;
-		$this->connectDB();
-		$passhashhash = hash('sha512', $passhash);
-        $query = mysql_query( sprintf( "INSERT INTO `users` ( `Username`, `PassHash` ) VALUES ( '%s', '%s' )", $this->cleanQuery($username), $passhashhash ) );
+        $passhash = hash('sha512', $password);
+        $query = $this->mysqli->query(sprintf("INSERT INTO users(Username, PassHash)
+            VALUES ('%s', '%s')", $this->cleanQuery($username), $passhash));
+        
         if ( !$query )
-            return mysql_errno(); //http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
-		else
-		{
-			return true;
+        {
+            return $this->mysqli->errno;
         }
-        $this->closeDB();
+        else
+        {
+            return true;
+        }
     }
     
     public function setThreadDescription( $threadid, $board, $description )

@@ -1,9 +1,6 @@
 <?php
-if ((require "../chan_archiver.php") !== 1)
-{
-    die('Failed to include chan_archiver.php.');
-}
-$t = new chan_archiver();
+chdir('..');
+require_once 'init.php';
 
 echo <<<ENDHTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -19,8 +16,7 @@ echo <<<ENDHTML
 <link rel="apple-touch-icon" sizes="114x114" href="http://static.4chan.org/image/apple-touch-icon-iphone-retina.png">
 <link rel="apple-touch-icon" sizes="144x144" href="http://static.4chan.org/image/apple-touch-icon-ipad-retina.png">
 <link rel="stylesheet" type="text/css" href="../assets/faq.2.css">
-</style>
-</head><link rel="stylesheet" type="text/css" href="data:text/css,">
+</head>
 <body style="background: #FFE url('../assets/fade.png') top repeat-x; color: #800;">
   <div id="doc">
     <div id="hd">
@@ -71,7 +67,7 @@ else
       <br class="clear-bug">
       <div id="copyright">All data is encrypted with SHA512 before inserted into a secure database.
 	  <br />
-      Not affilated with 4chan in any way. Released under the GNU General License 3.
+      Not affiliated with 4chan in any way. Released under the GNU General License 3.
       </div>
     </div>
 </body>

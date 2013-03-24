@@ -3,8 +3,8 @@
 //what you doin here, son?
 error_reporting( E_ALL );
 session_start();
-require "chan_archiver.php";
-$t = new chan_archiver();
+require_once 'init.php';
+
 if ( !isset($archiver_config[ 'updater_enabled' ]) || $archiver_config[ 'updater_enabled' ] )
     $t->doUpdate();
 
@@ -294,7 +294,7 @@ echo <<<ENDHTML
       </div>
 	  <div id="ft">
       <br class="clear-bug">
-      <div id="copyright"><a href="https://github.com/steamruler/CloudArchiver">GitHub</a> • 
+      <div id="copyright"><a href="https://github.com/steamruler/CloudArchiver">GitHub</a> | 
 ENDHTML;
 $bookmarkleturl = "http://" . ( $_SERVER[ 'HTTP_HOST' ] ? $_SERVER[ 'HTTP_HOST' ] : $_SERVER[ "SERVER_NAME" ] ) . $_SERVER[ "SCRIPT_NAME" ];
 ?>
