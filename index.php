@@ -5,9 +5,6 @@ error_reporting( E_ALL );
 session_start();
 require_once 'init.php';
 
-if ( !isset($archiver_config[ 'updater_enabled' ]) || $archiver_config[ 'updater_enabled' ] )
-    $t->doUpdate();
-
 // login stuff
 if ( isset( $_REQUEST[ 'login' ] ) && isset( $_REQUEST[ 'user' ] ) && isset( $_REQUEST[ 'pass' ] ) )
 {
@@ -142,12 +139,6 @@ echo <<<ENDHTML
           <div class="boxcontent">
 ENDHTML;
 
-if ( $t->updateAvailable )
-{
-    echo <<<ENDHTML
-    <div class="alertbox">There is an <a href="{$t->updaterurl}" onclick="alert('make sure you delete version.txt after updating!');">update</a> available! <a href="{$t->compareurl}{$t->currentVersion}...{$t->latestVersion}">(diff)</a></div><br />
-ENDHTML;
-}
 if ( isset( $_SESSION[ 'returnvar' ] ) && $_SESSION[ 'returnvar' ] != "" )
 {
     $arr = explode( '<br />', $_SESSION[ 'returnvar' ] );

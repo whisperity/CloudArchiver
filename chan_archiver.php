@@ -9,12 +9,7 @@ class chan_archiver
     public $mysql;
     private $mysqli;
     public $threadurl = "http://boards.4chan.org/%s/res/%s"; // board, ID
-    public $updaterurl = "https://github.com/steamruler/CloudArchiver/tarball/master";
-    public $compareurl = "https://github.com/steamruler/CloudArchiver/compare/";
-    public $currentVersion;
-    public $latestVersion;
-    public $updateAvailable;
-	
+    
     public function injectDatabase($mysqli)
     {
         if ($mysqli instanceof mysqli)
@@ -27,47 +22,7 @@ class chan_archiver
 	{
         return $this->mysqli->real_escape_string($string);
 	}
-	
-    public function doUpdate()
-    {
-        $size   = 0;
-        $handle = 0;
-        if ( file_exists( "version.txt" ) )
-        {
-            $size   = filesize( "version.txt" );
-            $handle = fopen( "version.txt", "r+" );
-        }
-        if ( !$handle || $size <= 0 )
-        {
-            $this->currentVersion = $this->getCurrentLatest();
-            $this->saveCurrentVersion();
-        }
-        else
-        {
-            $this->currentVersion = fread( $handle, $size );
-            fclose( $handle );
-        }
-        $this->latestVersion   = $this->getCurrentLatest();
-        $this->updateAvailable = $this->latestVersion != $this->currentVersion;
-    }
-    
-    protected function saveCurrentVersion()
-    {
-        $handle = fopen( "version.txt", "w+" );
-        if ( !$handle )
-            die( 'Unable to open version.txt' );
-        fwrite( $handle, $this->currentVersion );
-        fclose( $handle );
-    }
-    
-    protected function getCurrentLatest()
-    {
-        $headers = get_headers( $this->updaterurl, 1 );
-        $latest  = explode( "filename=", $headers[ 'Content-Disposition' ] );
-        $latest  = str_replace( ".tar.gz", "", str_replace( "steamruler-CloudArchiver-", "", $latest[ 1 ] ) );
-        return $latest;
-    }
-    
+	    
     protected function connectDB()
     {
         global $archiver_config;
@@ -77,7 +32,6 @@ class chan_archiver
             if ( !$this->mysql )
                 die( 'Could not connect: ' . mysql_error() );
             mysql_select_db( $archiver_config[ 'mysql_db' ], $this->mysql );
-            
         }
     }
     

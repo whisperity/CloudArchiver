@@ -46,6 +46,5 @@ $archiver_config[ 'restrict_actions' ] = true;
 // you should probably leave this alone
 // -----------------------------------------------------------
 
-$archiver_config[ 'updater_enabled' ] = false; //NOTE: This is broken. Do not enable.
 $archiver_config[ 'login_enabled' ]   = $archiver_config[ 'login_del' ] || $archiver_config[ 'login_add' ] || $archiver_config[ 'login_chk' ];
 ?>
